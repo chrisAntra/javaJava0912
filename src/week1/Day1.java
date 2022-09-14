@@ -2,6 +2,7 @@ package week1;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -200,49 +201,221 @@ class A1Child extends A {
  *      object
  *
  */
+//
+//class Test2{
+//    public static void main(String[] args) {
+//        //rv(1)
+//        final int i=1;
+//        final List<Integer> list = new LinkedList<>();
+//        list.add(1);
+//        System.out.println(list);
+//        String s1 = "aab";
+//        s1 = s1+"a";
+//        //s1 "aaba"
+//        //1+2+3+4 +...n
+//        //n(n+1)/2
+//        //System.gc();
+//        StringBuilder res=new StringBuilder("");
+//        //space comp:O(n)
+//        /*
+//         */
+//        for(int j=s1.length()-1;j>=0;j--) {
+//            res.append(s1.charAt(j));
+//        }
+//        System.out.println(res);
+//        //"aab" "a" "aaba"
+//        System.out.println(s1);
+//
+//
+//        //rv(reference value(address))
+//        //Integer pool(range(-128~127))
+//        Integer l1 = 128;
+//        Integer l2 = 128;
+//        System.out.println(l1==l2);
+//
+//    }
+//
+//    void dummy(Person p) {
+//        p.i=1;
+//    }
+//
+//
+//}
+class Person {
+    int age;
+    public Person() {}
+    public Person(int age) {
+        this.age = age;
+    }
+}
 
-class Test2{
+class Test3 {
+    static void changePerson(Person p) {
+        //p(addr1)
+//        p = new Person(40); //p(addr2)
+        //p(addr1->obj(person(20))) p-> obj <- p1
+        p.age = 40;
+    }
+    static void changeValue(int i) {
+        i =10;
+    }
     public static void main(String[] args) {
-        //rv(1)
-        final int i=1;
+        Person p1 = new Person(20); //construt
+        //p1(addr1)
+        //p1(addr1->obj(person(20)))
+        System.out.println("before: "+p1.age);
+        changePerson(p1); // p (addr1)
+        System.out.println("after: "+p1.age);
+//        int i=1;
+//        System.out.println(i);
+//        changeValue(i);
+//        System.out.println(i);
+
+
+    }
+
+}
+
+/**
+ * final
+ *      attribute/rv
+ *          value cannot change
+ *      method
+ *          cannot override
+ *      class
+ *          cannot be inherited
+ */
+
+final class TestFinal{
+    public static void main(String[] args) {
         final List<Integer> list = new LinkedList<>();
+        //list(addr1)
+        System.out.println(list);
         list.add(1);
         System.out.println(list);
-        String s1 = "aab";
-        s1 = s1+"a";
-        //s1 "aaba"
-        //1+2+3+4 +...n
-        //n(n+1)/2
-        //System.gc();
-        StringBuilder res=new StringBuilder("");
-        //space comp:O(n)
-        /*
-         */
-        for(int j=s1.length()-1;j>=0;j--) {
-            res.append(s1.charAt(j));
+//        final int i;
+//        i=1;//ini
+//        i=10;
+        final Integer i =1;
+
+
+
+    }
+    final void dummy(){}
+    final void dummy(int i){}
+}
+
+/**
+ * 5. Immutable
+ *      Wrapper Integer, Boolean...
+ *      String
+ *    final, deep copy, private
+ */
+
+//final class CustomizedImmu{
+//    //...
+////    private final List<Integer> list = new LinkedList<>();
+//    private final List<Integer> list;
+//    CustomizedImmu(List<Integer> list1) {
+////        for(int i: list) {
+////            this.list.add(i);
+////        }
+//
+//        //this.list = deepCopy(list1);
+//        //[innerlistrv(addr1),addr2]          [addr1,addr2] //list of list
+//        //deepCopy
+//        this.list = new LinkedList<>(list1);
+//    }
+//    List<Integer> getList(){
+//        //deepCopy
+//        return new LinkedList<>(this.list);
+//        //return[]            inner[]
+//    }
+//
+//
+//}
+//
+////class MalaciousImmu extends CustomizedImmu{
+////    //...
+////}
+//
+//class Test5 {
+//    public static void main(String[] args) {
+////        CustomizedImmu immu = new MalaciousImmu();
+//        List<Integer> list = new LinkedList<>();
+//        list.add(1);
+//        list.add(2);
+//        CustomizedImmu customizedImmu = new CustomizedImmu(list);
+//
+//        System.out.println(customizedImmu.getList());
+//        list.add(3);
+//        customizedImmu.getList().add(3);
+//        System.out.println(customizedImmu.getList());
+//
+//
+//
+//
+//
+//    }
+//}
+
+
+final class CustomizedImmu{
+    //...
+//    private final List<Integer> list = new LinkedList<>();
+
+    //[rv1(addr1), rv2(addr2)]  [rv3(addr1.add(100)), rv4(addr2)]
+    private final List<List> list;
+    CustomizedImmu(List<List> list1) {
+//        for(int i: list) {
+//            this.list.add(i);
+//        }
+
+        //this.list = deepCopy(list1);
+        //[innerlistrv(addr1),addr2]          [addr1,addr2] //list of list
+        //deepCopy
+        this.list = new LinkedList<>(list1);
+        for(int i=0;i<list1.size();i++) {
+            //shallow
+            this.list.set(i, new LinkedList(list1.get(i)));
         }
-        System.out.println(res);
-        //"aab" "a" "aaba"
-        System.out.println(s1);
-
-
-        //rv(reference value(address))
-        //Integer pool(range(-128~127))
-        Integer l1 = 128;
-        Integer l2 = 128;
-        System.out.println(l1==l2);
-
     }
-
-    void dummy(Person p) {
-        p.i=1;
+    List<List> getList(){
+        //deepCopy
+        return new LinkedList<>(this.list);
+        //return[]            inner[]
     }
 
 
 }
-class Person {
-    int i;
+
+//class MalaciousImmu extends CustomizedImmu{
+//    //...
+//}
+
+class Test5 {
+    public static void main(String[] args) {
+//        CustomizedImmu immu = new MalaciousImmu();
+        List<List> list = new LinkedList<>(); //list of list
+        List<Integer> inner1 = new LinkedList<>();
+        inner1.add(1);
+        list.add(inner1);
+        List<Integer> inner2 = new LinkedList<>();
+        inner2.add(2);
+        list.add(inner2);
+        CustomizedImmu customizedImmu = new CustomizedImmu(list);
+
+        System.out.println(customizedImmu.getList());
+        list.get(0).add(100);
+        System.out.println(customizedImmu.getList());
+
+
+
+
+
+    }
 }
+
 
 
 
