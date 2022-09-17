@@ -1,6 +1,7 @@
 package week1;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Day2 {
 
@@ -197,7 +198,7 @@ class Student {
 
 /**
  * 5. TreeMap ordered
- * binary search
+ * binary search tree
  *    left< root.val <right      left root right
  *    min heap
  *      root <left/right
@@ -247,12 +248,52 @@ class TestSet{
 }
 /**
  * heap insert into heapy log(n)
+ *  Priority
  */
 
 class TestHeap{
-
+    public static void main(String[] args) {
+        PriorityQueue<Integer> pq = new PriorityQueue<>(new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o2-o1 ; //des
+            }
+        });
+        //
+    }
 }
 
+/**
+ * Iterator
+ *  fail fast
+ *      modCount expModCount
+ */
+class TestIterator {
+    public static void main(String[] args) {
+        LinkedList<Integer> list = new LinkedList<>();
+        list.add(1);
+        list.add(200);
+        list.add(3);
+        list.add(4);
+        //list hold modCount ++
+        //it hold expModCount
+        //for each
+        Iterator<Integer> it = list.iterator();
+//        for(int e: list) {
+//            if(e==200) {
+//                list.remove(new Integer(200));
+//            }
+//        }
+
+         //   [1] [200] [3] [4]
+        while(it.hasNext()){
+            int curr = it.next();
+            if(curr==200) it.remove();
+        }
+        System.out.println(list);
+        //System.out.println(list);
+    }
+}
 
 
 
