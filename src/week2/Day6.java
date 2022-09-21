@@ -6,7 +6,10 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Day6 {
     volatile int i;
@@ -267,7 +270,8 @@ class TestThreadPool {
 }
 
 /**
- * Future
+ * Future (wrapper)
+ *  get() blocking
  */
 class TestFuture{
     public static void main(String[] args) throws Exception{
@@ -313,20 +317,215 @@ class TestFuture{
     }
 }
 
-//Java 8
-
 /**
- * Functional Interface
+ *  Java 8
+ *      interface
+ *          default static method
+ *      time
+ *      Functional Interface
+ *      Lambda Expression
+ *      Stream API
+ *      Optional
+ *      Completable Future
  */
 
 /**
- * Lambda Expression
+ * Functional Interface
+ *      interface only contains one abstract method
+ */
+interface  NormalInterface{
+//    void method0();
+//    void method1();
+//    void method2();
+    static void method3(){
+
+        System.out.println("xxx");
+    }
+
+    private void method4(){
+        System.out.println("method4");
+    }
+    default void method5(){
+        method4();
+    }
+
+}
+interface  NormalInterface2{
+    //    void method0();
+//    void method1();
+//    void method2();
+//    static void method3(){
+//
+//        System.out.println("xxx");
+//    }
+//
+//    private void method4(){
+//        System.out.println("method4");
+//    }
+    default void method5(){
+        System.out.println("i am in nor2");
+    }
+
+}
+class Test1111{
+    static class Cld implements NormalInterface, NormalInterface2{
+        @Override
+        public void method5(){
+            System.out.println("something");
+        }
+    }
+    public static void main(String[] args) {
+        Cld cld =new Cld();
+        cld.method5();
+        NormalInterface.method3();
+    }
+}
+@FunctionalInterface
+interface MyFuncitonInterface{
+    void method1();
+    static void method2(){};
+}
+class MyClzz implements Runnable{
+    @Override
+    public void run() {
+
+    }
+}
+
+/**
+ * Runnable vs Callable
+ *  void         return<>
+ *  /            throws handle checked exception
+ */
+class Test71{
+    public static void main(String[] args) {
+//        Runnable runnable1 = new MyClzz();
+//        //anonymous class implement the runnable interface, then new an object from that anonymous class
+//        Runnable runnable = new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        };
+//        //
+//        Callable callable = new Callable() {
+//            @Override
+//            public Object call() throws Exception {
+//                return null;
+//            }
+//        };
+        Predicate<Integer> predicate = a-> a>10;
+        System.out.println(predicate.test(5));
+
+        Comparator<Integer> comparator = (a, b)-> a-b;
+        System.out.println(comparator.compare(10, 1));
+
+        BiFunction<Integer, Boolean, Object> biFunction = (x1, x2)->{
+            return new Object();
+        };
+        System.out.println(biFunction.apply(1,true));
+        Supplier<HashMap> supplier = ()-> new HashMap<Integer, Integer>();
+        HashMap<Integer, Integer> res = supplier.get();
+        //Consumer
+//        MyFuncitonInterface myFuncitonInterface = ()->{
+//            System.out.println("overring my customized fi");
+//        };
+//        myFuncitonInterface.method1();
+    }
+}
+
+/**
+ * Lambda Expression (only work with functional interface)
+ *  (input rv)-> { method body}
+ *  if there one input
+ *   ...-> ...
  */
 
 /**
  * Stream API
+ *      for loop
+ *          Stream obj(contains ele in your collections) stream api apply operation on each of the ele
+ *      chain operation
+ *      intermediate step (map(), mapToInt(), filter()...)
+ *      terminate step(collect(), reduce(), forEach())
  * Parallel Stream API
  */
+class Test72{
+    public static void main(String[] args) {
+//        Function function
+        List<Integer> list = Arrays.asList(1,2,3,4,5);
+               //stream obj
+
+        int i=(int) list.parallelStream().
+//                map(x->x+10). //get new value into the stream
+//                map(x->x*10).
+                                           // 10 20 30 40 5
+               //reduce the stream obj into one object
+                map(x->{
+                   System.out.println(Thread.currentThread().getName()+" working on "+x);
+                    return x*10;
+               }).
+                //100+1
+                //100+2
+                //100+3
+                reduce(0,
+                        (res, x)-> {
+                            System.out.println(Thread.currentThread().getName()+" working on "+res+", "+x);
+                            return res+x;
+                        },
+                        (finalR, r)->finalR+r);
+        System.out.println(i);
+
+
+    }
+}
+
+/**
+ * filter the employee age>=25
+ */
+class Employee {
+    int age;
+
+    public Employee(int age) {
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "age=" + age +
+                '}';
+    }
+}
+class Test73{
+    public static void main(String[] args) {
+        List<Employee> employeeList = new LinkedList<>();
+        new Employee(18);
+        employeeList.add(new Employee(18));
+        employeeList.add(new Employee(20));
+        employeeList.add(new Employee(25));
+        employeeList.add(new Employee(30));
+        employeeList.add(new Employee(35));
+//        List<Employee> result = new LinkedList<>();
+        //ele -> new ele
+        List<Employee> res = employeeList.stream().filter(emp->emp.age>=25).map(emp->{
+            System.out.println(Thread.currentThread().getName()+" working on "+emp);
+            emp.age+=1;
+            return emp;
+        }).collect(Collectors.toList());
+        System.out.println(res);
+
+
+//        for(Employee employee: employeeList){
+//            if(employee.age>=25){
+//                result.add(employee);
+//            }
+//        }
+
+    }
+
+
+}
 
 class Test {
     public static void main(String[] args) {
@@ -336,9 +535,109 @@ class Test {
 
 /**
  * Optional
+ *      wrapper class
+ *      wrap object
+ *      help with null check
+ *      eliminate all the "null" in code
  */
+class Test74{
+    public static void main(String[] args) throws Exception{
+        Employee emp = null;
+        Optional<Employee> optionalEmployee = Optional.of(emp);
+        if(!optionalEmployee.isPresent()){
+            System.out.println("Emp is null");
+        }
+    }
+}
 
 /**
- * Completable Future
+ * Completable Future (multithreading library)
+ *      fully asynchronous
+ *      chain operation
+ *      combine all the result from multiple cf
+ *          allOf anyOf
+ *
  */
+
+class Test75 {
+    public static void main(String[] args) throws  Exception{
+//        CompletableFuture<Integer> completableFuture = CompletableFuture.supplyAsync(()->{
+//            try{
+//                Thread.currentThread().sleep(3000);
+//            }catch(Exception ex){
+//                System.out.println(ex);
+//            }
+//            return 10;
+//        });
+////        int i= completableFuture.get();
+//        completableFuture.thenAccept((x)->{
+//            x+=10;
+//            System.out.println(x);
+//        });
+//        CompletableFuture cf = CompletableFuture.supplyAsync(()->{
+//            try{
+//                Thread.currentThread().sleep(3000);
+//            }catch(Exception ex){
+//                System.out.println(ex);
+//            }
+//            return 10;
+//        }).thenApply((x)->x+10).thenAccept(x->{
+//            System.out.println(x);
+//        });
+//        System.out.println("this is main");
+//        System.out.println("finished all work in main");
+//        cf.join();
+        List<CompletableFuture> completableFutures = new LinkedList<>();
+        for(int i=0;i<5;i++) {
+            final int fi=i;
+            CompletableFuture<Integer> tempCf = CompletableFuture.supplyAsync(()->{
+                System.out.println("STEP1: send apis calla and gather res");
+                try{
+                    Thread.currentThread().sleep(fi*1000);
+                }catch (Exception ex){
+                    System.out.println(ex);
+                }
+                return fi;
+            });
+            completableFutures.add(tempCf);
+        }
+        CompletableFuture signalCf = CompletableFuture.anyOf(completableFutures.toArray(new CompletableFuture[0]));
+        signalCf.thenAccept(Void->{
+            for(int i=0;i<5;i++){
+                CompletableFuture<Integer> interEleCf = completableFutures.get(i);
+                interEleCf.thenAccept(x->{
+                    x+=10;
+                    System.out.println("STEP2:"+ x);
+                }).join();
+
+            }
+        }).join();
+/**
+ *  basic query
+ *      select
+ *      from
+ *      where
+ *      subQuery
+ *      minus
+ *      union
+ *      intersect
+ *      join
+ *      group by
+ *      aggregation funct min max avg
+ *      execution
+ *      select 2nd salary emp in table
+ *  what transaciton ACID
+ *  Table Design
+ *      stu class
+ *      1 -  1
+ *      m -  1
+ *      m -  m
+ *  Normalization
+ *  Index
+ *      b/b+ tree
+ *
+ */
+
+    }
+}
 
